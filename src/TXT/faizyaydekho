@@ -1,0 +1,66 @@
+import React, { Component } from "react";
+import { StyleSheet, FlatList, View, Text } from "react-native";
+import { render } from "react-dom";
+import * as Contacts from "expo-contacts";
+export default class contacts extends Component {
+  constructor(props) {
+    //constructor to set default state
+    super(props);
+    this.state = { contact: [] };
+  }
+  renderItem = ({ item }) => {
+    console.log("hello");
+    console.log("id in list", item.id);
+    return (
+      <View style={{ flex: 1, flexDirection: "row" }}>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text style={{ fontWeight: "bold" }}>{item.contactType}</Text>
+        </View>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text>Carbs:{item.id}</Text>
+          <Text>Sugar:{item.label}</Text>
+          <Text>Sodium:{item.type}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  componentDidMount = () => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === "granted") {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.Emails],
+        });
+
+        if (data.length > 0) {
+          this.setState({ contact: data[0] });
+
+          //console.log(this.state.contact);
+        }
+      }
+    })();
+  };
+  render() {
+    console.log("id in render function", this.state.contact);
+    return (
+      <View>
+        <Text>asasasasasasas </Text>
+        <Text>{this.state.contact.lastName} </Text>
+        <FlatList
+          //ListHeaderComponent={this.renderHeader}
+          data={this.state.contact}
+          renderItem={this.renderItem}
+          keyExtractor={(item, i) => i.toString()}
+          //extraData={this.state}
+        />
+      </View>
+    );
+  }
+}
+const styles = StyleSheet.create({
+  container1: {
+    flex: 1,
+    justifyContent: "center",
+  },
+});

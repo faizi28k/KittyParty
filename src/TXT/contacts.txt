@@ -1,0 +1,251 @@
+import React, { Component } from "react";
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, FlatList, Alert } from "react-native";
+import * as Contacts from "expo-contacts";
+import { Ionicons } from '@expo/vector-icons';
+import { CheckBox, Icon } from 'react-native-elements';
+
+const BACKGROUND = '#88B04B';
+const RADIUS = 10;
+var sel_Contacts = [];
+var i=0;
+var holder = false;
+
+export default class contacts extends Component {
+  constructor(props) {
+    //constructor to set default state
+    super(props);
+    this.state = {
+      animating: true,
+      holder: false,
+      sel_Contacts: [],
+    };
+  }
+
+  componentDidMount = () => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === "granted") {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [
+            Contacts.Fields.PhoneNumbers,
+            Contacts.Fields.firstName,
+            
+          ],
+        });
+
+        if (data.length > 0) {
+          this.setState({
+            contact: data,
+            animating: false,
+            inMemoryContacts: data,
+          })
+          this.state={
+            check: false,
+          }
+        }
+      }
+    })();
+  };
+
+  // selectedContacts = (val) => {
+  //   // console.log(val);
+  //   this.state={
+  //     sel_Contacts: val,
+  //   }
+  // }
+
+  ShowContacts() {
+    return(
+        <View>
+          <Text>{sel_Contacts}</Text>
+        </View>
+    )
+  }
+
+  // searchContacts = (value) => {
+  //   const filterContacts = this.state.inMemoryContacts.filter(
+  //     contact => {
+  //       let contactLowercase = (contact.firstName+' ').toLowerCase();
+  //       let searchTerm = value.toLowerCase();
+
+  //       return contactLowercase.indexOf(searchTerm)> -1
+  //     }
+  //   )
+  //   this.setState({contact: filterContacts});
+  // }
+
+  checkState(val) {
+    if(val === false){
+      return(
+        <View>
+          <Text>No Scene</Text>
+        </View>
+      )
+    }
+    else{
+      return (
+        <this.Mark />
+      )
+    }
+  }
+
+ Mark(val){
+    return(
+      <View>
+        <Text>Done</Text>
+      </View>
+    )
+ }
+
+  render() {
+    return (
+      <View style={{ width: "100%" }}>
+          <Text
+          style={{ padding: 10,
+          fontWeight: "bold",
+          fontSize: 23,
+          color: '#55b9f3',
+          borderBottomColor: '#55b9f3',
+          borderBottomWidth: 1.2,
+          width: '80%',
+          marginLeft: 12,
+          }}> Select Members of the Committe</Text>
+          <Text
+           style={{ padding: 10,
+            fontWeight: "bold",
+            fontSize: 18,
+            color: 'red', alignSelf: 'flex-end', marginRight: 10,}}>Step 1 of 2</Text>
+        <View
+        style={{height: '70%',
+        width: '80%',
+        alignSelf: 'center',
+        marginTop: 5,
+        backgroundColor: '#e0e5ec',
+        borderRadius: 30,
+        marginBottom: 16,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        shadowOpacity: 'blue',
+        shadowOffset: {
+          width: 50,
+          height: 50,
+        },
+        elevation: 6,
+        }}>
+          <View style={{height: '100%', width: '80%'}}>
+            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                <Text
+                    style={{ padding: 10,
+                    fontWeight: "bold",
+                    fontSize: 18,
+                    color: '#55b9f3',
+                    borderBottomColor: '#55b9f3',
+                    borderBottomWidth: 1.2,
+                    width: '70%',
+                    marginLeft: 12,
+                    }}>
+                    All Contacts
+                </Text>
+                <View style={{marginRight: 15, marginTop: 10,}}>
+                  <ActivityIndicator size='large' color='#55b9f3' animating={this.state.animating} />
+                </View>
+            </View>
+
+            {/* <View style={styles.SearchBar}>
+              <FontAwesome5
+              style={{justifyContent: 'center', marginLeft: 20}}
+              name="search" size={24}
+              color="#55b9f3" />
+              <TextInput
+              style={{ padding: 10, fontWeight: "bold", fontSize: 20, width: '80%' }}
+              placeholder="SEARCH"
+              placeholderTextColor={'#93979a'}
+              onChangeText={(value) => this.searchContacts(value)} />
+            </View> */}
+
+            <FlatList
+              style={{alignSelf: 'center', width: '100%', marginLeft: 50}}
+              data={this.state.contact}
+              // keyExtractor={(item) => item.Fields}
+              renderItem={val => (
+                <View style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5, backgroundColor: '#55b9f3' }}>
+                  <View>
+                    <Text style={{fontSize: 20, marginLeft: 10}}>{val.item.firstName}</Text>
+                    <Text style={{fontSize: 20, marginLeft: 10}}>{val.item.phoneNumbers[0].number}</Text>
+                  </View>
+                  <CheckBox
+                    // value={false}
+                    // title={'press'}
+                    iconType="material"
+                    checkedIcon="clear"
+                    uncheckedIcon="add"
+                    checkedColor="red"
+                    uncheckedColor="blue"
+                    onIconPress={() => {
+                      console.log(val.item.firstName);
+                      sel_Contacts.push(val.item.firstName.toString());
+                      
+                    }}
+                  />
+                  {/* <this.check /> */}
+                </View>)
+              }
+            />
+          </View>
+        </View>
+        <View style={styles.plus}>
+          <TouchableOpacity
+          onPress={() =>
+            this.props.navigation.navigate('Committe Info')
+          }
+          style={styles.fab}>
+          <Text><Ionicons name="md-arrow-round-forward" size={50} color="#e0e5ec" /></Text>
+        </TouchableOpacity>
+        </View>
+        <View style={{backgroundColor: 'blue'}}>
+          <this.ShowContacts />
+        </View>
+      </View>
+    );
+  }
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  SearchBar: {
+    marginTop: 10,
+    marginLeft: 40,
+    marginBottom: 10,
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#c7cbd1',
+    borderRadius: 20,
+    height: 40,
+    fontSize: 25,
+  },
+  fab: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 20,
+    bottom: 60,
+    backgroundColor: '#55b9f3',
+    borderRadius: 30,
+    elevation: 8,
+  },
+  fabIcon: {
+    marginBottom: 10,
+    fontSize: 60,
+    color: 'white'
+  },
+  plus: {
+    height: '15%',
+    width: '100%',
+  },
+});
